@@ -1,9 +1,10 @@
 import React from 'react'
-import { Form, Input, Tooltip, Icon, Cascader, Select, Row, Col, Checkbox, Button, AutoComplete } from 'antd';
+import { Form, Input, Button } from 'antd';
+import $ from 'jquery';
+import{API_ROOT} from './constants.js'
 
 const FormItem = Form.Item;
-const Option = Select.Option;
-const AutoCompleteOption = AutoComplete.Option;
+
 
 
 class RegistrationForm extends React.Component {
@@ -17,6 +18,14 @@ class RegistrationForm extends React.Component {
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
+                $.ajax({
+                    url:`${API_ROOT}/signup`,
+                    method:'post',
+                    data:JSON.stringify({
+                        username:values.username,
+                        password:values.password,
+                    })
+                })
             }
         });
     }
@@ -46,7 +55,6 @@ class RegistrationForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { autoCompleteResult } = this.state;
 
         const formItemLayout = {
             labelCol: {
@@ -73,7 +81,7 @@ class RegistrationForm extends React.Component {
 
 
         return (
-            <Form onSubmit={this.handleSubmit}>
+            <Form onSubmit={this.handleSubmit} className="register-form">
                 <FormItem
                     {...formItemLayout}
                     label="Username"
