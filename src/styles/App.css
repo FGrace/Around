@@ -1,7 +1,8 @@
-@import '~antd/dist/antd.css';
-@import "./main.css";
-@import './Register.css';
-@import './Login.css';
+@import '../../node_modules/antd/dist/antd.css';
+@import "main.css";
+@import 'Register.css';
+@import 'Login.css';
+@import "Home.css";
 
 
 .App {

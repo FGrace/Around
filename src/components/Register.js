@@ -1,7 +1,8 @@
 import React from 'react'
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button,message } from 'antd';
 import $ from 'jquery';
-import{API_ROOT} from './constants.js'
+import{API_ROOT} from '../constants.js'
+import {Link} from 'react-router-dom'
 
 const FormItem = Form.Item;
 
@@ -13,22 +14,32 @@ class RegistrationForm extends React.Component {
         autoCompleteResult: [],
     };
 
+
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
                 $.ajax({
-                    url:`${API_ROOT}/signup`,
-                    method:'post',
-                    data:JSON.stringify({
-                        username:values.username,
-                        password:values.password,
-                    })
-                })
+                    url: `${API_ROOT}/signup`,
+                    method: 'POST',
+                    data: JSON.stringify({
+                        username: values.username,
+                        password: values.password,
+                    }),
+                }).then((response) => {
+                    message.success(response);
+                    this.props.history.push('/login');
+                }, (response) => {
+                    message.error(response.responseText);
+                }).catch((error) => {
+                    message.error(error);
+                });
             }
         });
     }
+
+
 
     handleConfirmBlur = (e) => {
         const value = e.target.value;
@@ -126,6 +137,7 @@ class RegistrationForm extends React.Component {
 
                 <FormItem {...tailFormItemLayout}>
                     <Button type="primary" htmlType="submit">Register</Button>
+                    <p>I already have an account, go back to <Link to="/login">login</Link></p>
                 </FormItem>
             </Form>
         );
