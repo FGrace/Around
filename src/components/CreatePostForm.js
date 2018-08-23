@@ -30,7 +30,8 @@ class CreatePostForm extends React.Component{
                     label="Message">
                     {getFieldDecorator('message', {
                         rules: [{ required: true, message: 'Please input the a message!' }],
-                    })(
+                    })
+                    (
                         <Input />
                     )}
                 </FormItem>
