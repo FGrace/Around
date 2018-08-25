@@ -1,10 +1,12 @@
 import React from 'react';
 import $ from 'jquery';
-import {Tabs, Button, Spin,Row,Col} from 'antd';
+import {Tabs, Radio, Spin,Row,Col} from 'antd';
 import {GEO_OPTIONS, POS_KEY, API_ROOT, TOKEN_KEY,AUTH_HEADER} from '../constants';
 import {Gallery} from './Gallery';
 import {CreatePostButton} from './CreatePostButton';
 import {WrappedAroundMap} from './AroundMap';
+
+const RadioGroup = Radio.Group;
 
 
 export class Home extends React.Component{
@@ -14,6 +16,8 @@ export class Home extends React.Component{
         loadingPost:false,
         error:"",
         posts:'',
+        topic: 'around',
+
     }
 
    /*start loading images after UI has been rendered */
@@ -48,8 +52,10 @@ export class Home extends React.Component{
        const {lat, lon} = location ? location : JSON.parse(localStorage.getItem(POS_KEY));
        const token = localStorage.getItem(TOKEN_KEY);
        const range = radius ? radius : 20;
+       const endPoint = this.state.topic === 'around' ? 'search' : 'cluster';
+       const term = this.state.topic === 'around' ? '' : 'face';
        $.ajax({
-           url:`${API_ROOT}/search?lat=${lat}&lon=${lon}&range=${range}`,
+           url:`${API_ROOT}/${endPoint}?lat=${lat}&lon=${lon}&range=${range}&term=${term}`,
            method:'GET',
            headers:{
                Authorization:`${AUTH_HEADER} ${token}`,
@@ -115,29 +121,42 @@ export class Home extends React.Component{
         );
     }
 
+    onTopicChange = (e) => {
+        this.setState({topic : e.target.value},this.loadNearbyPost);
+    }
+
     render(){
         const operations = <CreatePostButton loadNearbyPost = {this.loadNearbyPost}/>;
         const TabPane = Tabs.TabPane;
 
         return(
-            <Tabs tabBarExtraContent={operations} className="main-tabs">
-                <TabPane tab="Image Post" key="1">
-                    {this.getPanelContent('image')}
-                </TabPane>
-                <TabPane tab="Video Post" key="2">
-                    {this.getPanelContent('video')}
-                </TabPane>
-                <TabPane tab="Map" key="3">
-                    <WrappedAroundMap
-                        googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
-                        loadingElement={<div style={{ height: `100%` }} />}
-                        containerElement={<div style={{ height: `400px` }} />}
-                        mapElement={<div style={{ height: `100%` }} />}
-                        posts={this.state.posts}
-                        loadNearbyPost = {this.loadNearbyPost}
-                    />
-                </TabPane>
-            </Tabs>
+            <div>
+                <RadioGroup onChange={this.onTopicChange} value={this.state.topic} className = 'topic-radio-group'>
+                    <Radio value= "around">Posts around me</Radio>
+                    <Radio value="face">Faces around the world</Radio>
+                </RadioGroup>
+
+                <Tabs tabBarExtraContent={operations} className="main-tabs">
+                    <TabPane tab="Image Post" key="1">
+                        {this.getPanelContent('image')}
+                    </TabPane>
+                    <TabPane tab="Video Post" key="2">
+                        {this.getPanelContent('video')}
+                    </TabPane>
+                    <TabPane tab="Map" key="3">
+                        <WrappedAroundMap
+                            googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
+                            loadingElement={<div style={{ height: `100%` }} />}
+                            containerElement={<div style={{ height: `400px` }} />}
+                            mapElement={<div style={{ height: `100%` }} />}
+                            posts={this.state.posts}
+                            loadNearbyPost = {this.loadNearbyPost}
+                        />
+                    </TabPane>
+                </Tabs>
+
+            </div>
+
         );
     }
 }
