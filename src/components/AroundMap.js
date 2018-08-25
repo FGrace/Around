@@ -1,53 +1,58 @@
 import React from 'react';
+import {AroundMarker} from './AroundMarker';
 import {
     withScriptjs,
     withGoogleMap,
     GoogleMap,
-    Marker,
-    InfoWindow,
 } from 'react-google-maps';
+import {POS_KEY} from '../constants';
+
+
+class AroundMap extends React.Component{
+    reloadMarkers = () => {
+        const center = this.map.getCenter();
+        const position = {lat:center.lat(),lon:center.lng()};
+        const range = this.getRange();
+        this.props.loadNearbyPost(position,range);
+    }
+
+    saveMapRef = (mapInstance) => {
+        this.map = mapInstance;
+    }
+
+    getRange = () => {
+        const google = window.google;
+        const center = this.map.getCenter();
+        const bounds = this.map.getBounds();
+        let range = 0;
+        if (center && bounds) {
+            const ne = bounds.getNorthEast();
+            const right = new google.maps.LatLng(center.lat(), ne.lng());
+            range = 0.001 * google.maps.geometry.spherical.computeDistanceBetween(center, right);
+        }
+        return range;
+    }
 
 
 
- class AroundMap extends React.Component{
-     state = {
-         isOpen: false,
-     }
-     onToggleOpen = () => {
-         this.setState((prevState) => {
-             return {
-                 isOpen: !prevState.isOpen,
-             }
-         });
-     }
+
     render(){
+        const {lat,lon} = JSON.parse(localStorage.getItem(POS_KEY));
         return(
             <GoogleMap
-                defaultZoom={8}
-                defaultCenter={{ lat: -34.397, lng: 150.644 }}
+                ref = {this.saveMapRef}
+                defaultZoom={11}
+                defaultCenter={{ lat: lat, lng: lon }}
+                onDragEnd={this.reloadMarkers}
+                onZoomChanged={this.reloadMarkers}
             >
-                <Marker
-                    position={{ lat: -34.397, lng: 150.644 }}
-                    onClick={this.onToggleOpen}
-                >
-                    {this.state.isOpen ?
-                        <InfoWindow>
-                        <div>
-                            This is inforwindow.
-                        </div>
-                    </InfoWindow> : null}
-                </Marker>
-                <Marker
-                    position={{ lat: -34.3, lng: 150.644 }}
-                    onClick={this.onToggleOpen}
-                >
-                    {this.state.isOpen ?
-                        <InfoWindow>
-                            <div>
-                                This is inforwindow.
-                            </div>
-                        </InfoWindow> : null}
-                </Marker>
+
+                {
+                    this.props.posts.map((post) =>{
+                        return <AroundMarker post = {post} key = {post.url}/>
+                    })
+                }
+
             </GoogleMap>
         )
     }

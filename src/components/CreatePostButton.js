@@ -2,7 +2,7 @@ import { Modal, Button ,message} from 'antd';
 import React from 'react';
 import {WrappedCreatePostForm} from './CreatePostForm';
 import $ from 'jquery';
-import {API_ROOT, AUTH_HEADER, POS_KEY, TOKEN_KEY} from '../constants';
+import {API_ROOT, AUTH_HEADER, POS_KEY, TOKEN_KEY,LOC_SHAKE} from '../constants';
 
 export class CreatePostButton extends React.Component {
     state = {
@@ -26,8 +26,8 @@ export class CreatePostButton extends React.Component {
                 //send request
                 const {lat,lon} = JSON.parse(localStorage.getItem(POS_KEY));
                 const formData = new FormData();
-                formData.set('lat',lat);
-                formData.set('lon',lon);
+                formData.set('lat',lat + Math.random()* LOC_SHAKE);
+                formData.set('lon',lon + Math.random() * LOC_SHAKE);
                 formData.set('message',values.message);
                 formData.set('image',values.image[0].originFileObj);
                 $.ajax({

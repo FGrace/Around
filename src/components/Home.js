@@ -41,14 +41,15 @@ export class Home extends React.Component{
         this.loadNearbyPost();
     }
 
-    loadNearbyPost = () => {
+    loadNearbyPost = (location,radius) => {
         this.setState({loadingPost:true, error:''});
         /*deserialize JSON */
         /*deStructuring */
-       const {lat, lon} = JSON.parse(localStorage.getItem(POS_KEY));
+       const {lat, lon} = location ? location : JSON.parse(localStorage.getItem(POS_KEY));
        const token = localStorage.getItem(TOKEN_KEY);
+       const range = radius ? radius : 20;
        $.ajax({
-           url:`${API_ROOT}/search?lat=${lat}&lon=${lon}&range=20000`,
+           url:`${API_ROOT}/search?lat=${lat}&lon=${lon}&range=${range}`,
            method:'GET',
            headers:{
                Authorization:`${AUTH_HEADER} ${token}`,
@@ -72,13 +73,24 @@ export class Home extends React.Component{
 
     }
 
-    getResult = () => {
+    getPanelContent = (type) => {
         if(this.state.error){
             return <div>{this.state.error}</div>;
         } else if(this.state.loadingGeoLocation){
             return <Spin tip = 'loading geolocation...'/>;
         } else if (this.state.posts && this.state.posts.length > 0) {
-            const images = this.state.posts.map((post) => {
+            //get the images from posts and map
+           return  type === 'image' ? this.getImagePosts() : this.getVideoPosts();
+        } else {
+                return <div>Found Nothing</div>;
+
+        }
+    }
+
+    getImagePosts = () => {
+        const images = this.state.posts
+            .filter((post) => post.type === 'image')
+            .map((post) => {
                 return {
                     user: post.user,
                     src: post.url,
@@ -88,10 +100,12 @@ export class Home extends React.Component{
                     caption: post.message,
                 }
             });
-            return <Gallery images={images}/>;
-        } else {
-            return <div>Content of tab1</div>;
-        }
+        return <Gallery images={images}/>;
+    }
+
+    getVideoPosts = () => {
+        return this.state.posts.filter((post) => post.type === 'video')
+            .map((post) => <video src = {post.url} key = {post.url}/>);
     }
 
     render(){
@@ -101,15 +115,19 @@ export class Home extends React.Component{
         return(
             <Tabs tabBarExtraContent={operations} className="main-tabs">
                 <TabPane tab="Image Post" key="1">
-                    {this.getResult()}
+                    {this.getPanelContent('image')}
                 </TabPane>
-                <TabPane tab="Video Post" key="2">Content of tab 2</TabPane>
+                <TabPane tab="Video Post" key="2">
+                    {this.getPanelContent('video')}
+                    </TabPane>
                 <TabPane tab="Map" key="3">
                     <WrappedAroundMap
                         googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
                         loadingElement={<div style={{ height: `100%` }} />}
                         containerElement={<div style={{ height: `400px` }} />}
                         mapElement={<div style={{ height: `100%` }} />}
+                        posts={this.state.posts}
+                        loadNearbyPost = {this.loadNearbyPost}
                     />
                 </TabPane>
             </Tabs>
