@@ -1,6 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
-import {Tabs, Button, Spin} from 'antd';
+import {Tabs, Button, Spin,Row,Col} from 'antd';
 import {GEO_OPTIONS, POS_KEY, API_ROOT, TOKEN_KEY,AUTH_HEADER} from '../constants';
 import {Gallery} from './Gallery';
 import {CreatePostButton} from './CreatePostButton';
@@ -104,8 +104,15 @@ export class Home extends React.Component{
     }
 
     getVideoPosts = () => {
-        return this.state.posts.filter((post) => post.type === 'video')
-            .map((post) => <video src = {post.url} key = {post.url}/>);
+        return (
+            <Row gutter={32}>
+                {
+                    this.state.posts
+                        .filter((post) => post.type === 'video')
+                        .map((post) => <Col span={6} key={post.url}><video src={post.url}  controls className="video-block"/></Col>)
+                }
+            </Row>
+        );
     }
 
     render(){
@@ -119,7 +126,7 @@ export class Home extends React.Component{
                 </TabPane>
                 <TabPane tab="Video Post" key="2">
                     {this.getPanelContent('video')}
-                    </TabPane>
+                </TabPane>
                 <TabPane tab="Map" key="3">
                     <WrappedAroundMap
                         googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
