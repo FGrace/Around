@@ -12,7 +12,7 @@ class AroundMap extends React.Component{
     reloadMarkers = () => {
         const center = this.map.getCenter();
         const position = {lat:center.lat(),lon:center.lng()};
-        const range = this.getRange();
+        const range = this.getRange();POS_KEY
         this.props.loadNearbyPost(position,range);
     }
 

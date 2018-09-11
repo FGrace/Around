@@ -62,9 +62,11 @@ export class Home extends React.Component{
            },
        }).then((response) =>
        {
+
            const posts = response ? response : [];
            this.setState({posts: posts,loadingPost:false,error: ''});
            console.log(response);
+           console.log("This is response from server")
        }, (error) => {
            this.setState({ loadingPosts: false, error: error.responseText });
            console.log(error.responseText);
@@ -123,11 +125,13 @@ export class Home extends React.Component{
 
     onTopicChange = (e) => {
         this.setState({topic : e.target.value},this.loadNearbyPost);
+        console.log("This is onTopic Change")
     }
 
     render(){
         const operations = <CreatePostButton loadNearbyPost = {this.loadNearbyPost}/>;
         const TabPane = Tabs.TabPane;
+        console.log("This is render!")
 
         return(
             <div>
